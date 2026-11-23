@@ -1,0 +1,1109 @@
+
+
+
+### A. Universal Nginx `Dockerfile` (For SET-1, SET-2, SET-5, SET-9, SET-10)
+
+```dockerfile
+# Use lightweight Nginx Alpine base image
+FROM nginx:alpine
+
+# Copy local HTML, CSS, and JS files into Nginx web root
+COPY . /usr/share/nginx/html
+
+# Expose port 80 inside the container
+EXPOSE 80
+
+# Start Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]
+
+```
+
+**Build & Run Commands with Expected Output:**
+
+```bash
+# 1. Build the Docker image (-t tags the image name)
+docker build -t webapp:v1 .
+# Output: => => naming to docker.io/library/webapp:v1
+
+# 2. Run container in detached mode (-d) mapping host port 8080 to container port 80
+docker run -d -p 8080:80 --name my-webapp webapp:v1
+# Output: 8f9c2a1b4d7e6f5a3c2b1a0987654321fedcba9876543210abcdef1234567890
+
+# 3. Verify running container
+docker ps
+# Output: CONTAINER ID   IMAGE       PORTS                  NAMES
+#         8f9c2a1b4d7e   webapp:v1   0.0.0.0:8080->80/tcp   my-webapp
+
+```
+
+---
+
+# SET-1: Event Registration, Dockerization & Automation Testing
+
+### 1. User Registration Form (`index.html`, `styles.css`, `validate.js`)
+
+**`index.html`**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event Registration</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Tech Summit 2026 Registration</h2>
+    <form id="regForm" onsubmit="return validateForm()">
+      <label>Full Name:</label>
+      <input type="text" id="name" placeholder="Enter full name">
+      
+      <label>Email:</label>
+      <input type="email" id="email" placeholder="Enter email">
+      
+      <label>Phone (10 digits):</label>
+      <input type="text" id="phone" placeholder="9876543210">
+      
+      <label>Track:</label>
+      <select id="track">
+        <option value="">--Select Track--</option>
+        <option value="AI">AI & ML</option>
+        <option value="Cloud">Cloud & DevOps</option>
+      </select>
+      
+      <button type="submit">Register</button>
+      <p id="msg"></p>
+    </form>
+  </div>
+  <script src="validate.js"></script>
+</body>
+</html>
+
+```
+
+**`styles.css`**
+
+```css
+body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding-top: 50px; }
+.container { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 320px; }
+input, select, button { width: 100%; padding: 8px; margin: 8px 0 15px; box-sizing: border-box; }
+button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+#msg { font-weight: bold; }
+
+```
+
+**`validate.js`**
+
+```javascript
+function validateForm() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const track = document.getElementById("track").value;
+  const msg = document.getElementById("msg");
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[0-9]{10}$/;
+
+  if (name.length < 3) {
+    msg.style.color = "red";
+    msg.innerText = "Name must be at least 3 characters.";
+    return false;
+  }
+  if (!emailPattern.test(email)) {
+    msg.style.color = "red";
+    msg.innerText = "Invalid email format.";
+    return false;
+  }
+  if (!phonePattern.test(phone)) {
+    msg.style.color = "red";
+    msg.innerText = "Phone must be exactly 10 digits.";
+    return false;
+  }
+  if (track === "") {
+    msg.style.color = "red";
+    msg.innerText = "Please select a track.";
+    return false;
+  }
+
+  msg.style.color = "green";
+  msg.innerText = "Registration Successful!";
+  return false; // Prevents page reload so success message remains visible
+}
+
+```
+
+### 2. Containerized Web App
+
+Use **Template A (Universal Nginx Dockerfile)** above. Access at `http://localhost:8080`.
+
+### 3. Automation Testing & Selenium Features (Written Theory)
+
+* **Pros of Automation Testing:**
+* **Speed & Efficiency:** Executes thousands of regression tests faster than manual testers.
+* **Reusability & Repeatability:** Same test scripts run across builds with zero human fatigue or error.
+* **CI/CD Integration:** Triggers automatically on every Git commit via Jenkins.
+* **Parallel Execution:** Tests multiple browsers and OS combinations simultaneously.
+
+
+* **Cons of Automation Testing:**
+* **High Initial Cost:** Requires upfront investment in framework setup and test script coding.
+* **Maintenance Overhead:** Frequent UI changes break XPath/CSS selectors, requiring script updates.
+* **No Human Intuition:** Cannot evaluate visual aesthetics, UX friendliness, or exploratory edge cases.
+
+
+* **Key Features of Selenium:**
+* **Open-Source & Free:** No licensing fees.
+* **Multi-Language Support:** Supports Java, Python, C#, Ruby, and JavaScript.
+* **Cross-Browser & Cross-Platform:** Runs on Chrome, Firefox, Edge, Safari across Windows, Linux, and macOS.
+* **Selenium Grid:** Enables distributed parallel test execution across remote machines/containers.
+
+
+
+---
+
+# SET-2: Git Commands, Branching/PRs & Resume CI/CD
+
+### 1. Importance of SCM & 15+ Essential Git Commands
+
+**Importance:** Source Code Management (SCM) tracks every modification to code, enables parallel collaboration without overwriting teammates' work, maintains an audit history, and provides instant rollback capability if a bug is introduced.
+
+| # | Command | Purpose |
+| --- | --- | --- |
+| 1 | `git init` | Initializes a new local Git repository. |
+| 2 | `git clone <url>` | Downloads a remote GitHub repository to local machine. |
+| 3 | `git config --global user.name "Name"` | Sets author identity for commits. |
+| 4 | `git status` | Displays modified, untracked, and staged files. |
+| 5 | `git add .` | Stages all modified/new files for commit. |
+| 6 | `git commit -m "Message"` | Saves a permanent snapshot of staged changes. |
+| 7 | `git log --oneline` | Displays concise commit history and commit hashes. |
+| 8 | `git diff` | Shows unstaged line-by-line code differences. |
+| 9 | `git branch <branch-name>` | Creates a new isolated branch. |
+| 10 | `git checkout -b <branch-name>` | Creates and switches to a new branch immediately. |
+| 11 | `git merge <branch-name>` | Merges changes from specified branch into current branch. |
+| 12 | `git remote add origin <url>` | Links local repository to a remote GitHub URL. |
+| 13 | `git push -u origin main` | Uploads local commits to remote GitHub branch. |
+| 14 | `git pull origin main` | Fetches and merges latest remote changes into local branch. |
+| 15 | `git stash` | Temporarily shelves uncommitted changes for later use. |
+| 16 | `git reset --hard <commit-id>` | Reverts working directory and history to a specific commit. |
+
+### 2. GitHub Feature Branches & Pull Request Workflow
+
+```bash
+git checkout -b feature/login-ui       # 1. Create feature branch
+# (Make code edits)
+git add . && git commit -m "Add login" # 2. Commit changes
+git push -u origin feature/login-ui    # 3. Push branch to GitHub
+# 4. On GitHub: Click "Compare & pull request" -> Add description -> Create PR -> Code Review -> "Merge pull request"
+git checkout main && git pull          # 5. Sync merged changes locally
+
+```
+
+### 3. HTML Resume + Validation + Jenkins CI/CD
+
+**`index.html`**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Resume</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Karan Mantri</h1>
+    <p>Python Developer & Machine Learning Enthusiast | CGPA: 9.46</p>
+  </header>
+  <section>
+    <h2>Education</h2>
+    <ul><li>B.Tech in Computer Science & Engineering (2024–2028)</li></ul>
+  </section>
+  <section>
+    <h2>Skills</h2>
+    <ul><li>Python, FastAPI, Django, Flask, Docker, Jenkins, Git</li></ul>
+  </section>
+  <section>
+    <h2>Projects</h2>
+    <ul>
+      <li><strong>PROPgpt:</strong> Real estate data pipeline with EDA & target encoding.</li>
+      <li><strong>MyF1:</strong> Formula 1 analytics web application using Flask & HTML5/CSS3.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Recruiter Contact</h2>
+    <form onsubmit="return validateContact()">
+      <input type="text" id="recruiterEmail" placeholder="Recruiter Email">
+      <button type="submit">Send Inquiry</button>
+      <p id="status"></p>
+    </form>
+  </section>
+  <script src="validate.js"></script>
+</body>
+</html>
+
+```
+
+*(Use `styles.css` from SET-1; `validate.js` checks `recruiterEmail.includes("@")` and sets `status.innerText = "Sent!"`.)*
+
+**Jenkins Build Process Steps & Output:**
+
+1. **Push to GitHub:** Push `index.html`, `styles.css`, `validate.js` to a GitHub repo.
+2. **Create Job:** Open Jenkins (`localhost:8080`) → **New Item** → Name: `Resume-CI` → **Freestyle Project**.
+3. **Source Code Management:** Select **Git** → Paste Repository URL → Branch: `*/main`.
+4. **Build Triggers:** Check **Poll SCM** (`* * * * *` to check every minute).
+5. **Build Step:** Select **Execute shell** (or Windows batch) → Add commands:
+```bash
+echo "Validating HTML files..."
+ls -la
+cp -r * /var/www/html/ || echo "Deployed to staging directory"
+
+```
+
+
+6. **Build Now & Console Output:**
+```text
+Started by user admin
+Cloning the remote Git repository
+Checking out Revision a1b2c3d4 (refs/remotes/origin/main)
+[Resume-CI] $ /bin/sh -xe /tmp/jenkins123.sh
++ echo Validating HTML files...
+Validating HTML files...
++ ls -la
+index.html  styles.css  validate.js
+Finished: SUCCESS
+
+```
+
+
+
+---
+
+# SET-3: Docker Introspection, Java Phone Converter & Selenium Suite
+
+### 1. What is Docker Introspection ("Docker Intermission") & Use in SCM?
+
+*(Note: "Docker intermission" in exam banks is a known typo for **Docker Introspection** / **Docker Inspect** and multi-stage build inspection).*
+
+* **Definition:** Docker introspection is the process of querying low-level metadata, runtime state, network settings, mounted volumes, and environment configurations of Docker containers and images using `docker inspect <container_id>` or `docker diff`.
+* **Use in SCM:** During CI/CD pipelines, introspection verifies that the built artifact inside a container matches the exact Git commit SHA (via image labels), audits environment variables without opening an interactive shell, and detects unauthorized filesystem changes (`docker diff`) between source builds.
+
+### 2. Containerized Java Phone Letter-to-Digit Converter
+
+**`Convert.java`**
+
+```java
+import java.util.Scanner;
+
+public class Convert {
+    public static String convertPhone(String input) {
+        StringBuilder digits = new StringBuilder();
+        for (char c : input.toUpperCase().toCharArray()) {
+            if (Character.isDigit(c)) {
+                digits.append(c);
+            } else if (c >= 'A' && c <= 'C') digits.append('2');
+            else if (c >= 'D' && c <= 'F') digits.append('3');
+            else if (c >= 'G' && c <= 'I') digits.append('4');
+            else if (c >= 'J' && c <= 'L') digits.append('5');
+            else if (c >= 'M' && c <= 'O') digits.append('6');
+            else if (c >= 'P' && c <= 'S') digits.append('7');
+            else if (c >= 'T' && c <= 'V') digits.append('8');
+            else if (c >= 'W' && c <= 'Z') digits.append('9');
+        }
+        String d = digits.toString();
+        if (d.length() == 10) {
+            return "(" + d.substring(0, 3) + ") " + d.substring(3);
+        }
+        return d;
+    }
+
+    public static void main(String[] args) {
+        String input = (args.length > 0) ? args[0] : "800888TEST";
+        System.out.println("Input: " + input);
+        System.out.println("Converted: " + convertPhone(input));
+    }
+}
+
+```
+
+**`Dockerfile`**
+
+```dockerfile
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY Convert.java .
+RUN javac Convert.java
+ENTRYPOINT ["java", "Convert"]
+CMD ["800888TEST"]
+
+```
+
+**Docker Commands & Outputs:**
+
+```bash
+# Build the image
+docker build -t phone-converter .
+# Output: => => naming to docker.io/library/phone-converter:latest
+
+# Run with default argument (800888TEST)
+docker run --rm phone-converter
+# Output:
+# Input: 800888TEST
+# Converted: (800) 8888378
+
+# Run with custom argument
+docker run --rm phone-converter 1800FLOWERS
+# Output:
+# Input: 1800FLOWERS
+# Converted: 18003569377
+
+```
+
+### 3. Selenium Suite Components & `FirstSeleniumPro1.java`
+
+**4 Core Components of Selenium Suite:**
+
+1. **Selenium IDE:** Browser extension for record-and-playback prototyping.
+2. **Selenium RC (Remote Control):** Deprecated server-based tool that injected JS into browsers.
+3. **Selenium WebDriver:** Core API that communicates directly with browser-native drivers (ChromeDriver, GeckoDriver) to automate user actions.
+4. **Selenium Grid:** Hub-and-node architecture for running parallel tests across multiple machines, OSes, and browsers.
+
+**`FirstSeleniumPro1.java`**
+
+```java
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class FirstSeleniumPro1 {
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        try {
+            driver.get("https://www.google.com");
+            System.out.println("Page Title: " + driver.getTitle());
+            
+            WebElement searchBox = driver.findElement(By.name("q"));
+            searchBox.sendKeys("Selenium WebDriver");
+            searchBox.submit();
+            
+            Thread.sleep(2000);
+            System.out.println("Post-Search Title: " + driver.getTitle());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+}
+
+```
+
+---
+
+# SET-4: Jenkins Pipelines, Interactive Java Calculator & HTML Timetable
+
+### 1. Role of Jenkins Plugins & Build Pipelines
+
+* **Role of Jenkins Plugins:** Jenkins core is minimal; plugins (over 1,800+) extend its capabilities to integrate with external tools—such as **Git Plugin** (SCM checkout), **Docker Pipeline Plugin** (building/pushing images), **JUnit Plugin** (test reporting), and **Kubernetes Plugin** (dynamic build agents).
+* **Build Pipelines & Importance:** A build pipeline models the software delivery process as code (`Jenkinsfile`) broken into sequential stages (e.g., *Checkout → Build → Test → Package → Deploy*). They are crucial for system integration because they enforce automated quality gates—if unit or integration tests fail in an early stage, the pipeline halts immediately before broken code reaches staging or production.
+
+### 2. Interactive Java Calculator in Docker
+
+**`Calculator.java`**
+
+```java
+import java.util.Scanner;
+
+public class Calculator {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter first number: ");
+        double a = sc.nextDouble();
+        System.out.print("Enter operator (+, -, *, /): ");
+        char op = sc.next().charAt(0);
+        System.out.print("Enter second number: ");
+        double b = sc.nextDouble();
+
+        double res = switch (op) {
+            case '+' -> a + b;
+            case '-' -> a - b;
+            case '*' -> a * b;
+            case '/' -> (b != 0) ? a / b : Double.NaN;
+            default -> { System.out.println("Invalid operator"); yield 0; }
+        };
+        System.out.println("Result: " + res);
+        sc.close();
+    }
+}
+
+```
+
+**`Dockerfile`**
+
+```dockerfile
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY Calculator.java .
+RUN javac Calculator.java
+CMD ["java", "Calculator"]
+
+```
+
+**Docker Commands & Outputs (Note `-it` for interactive stdin):**
+
+```bash
+docker build -t java-calc .
+# Output: => => naming to docker.io/library/java-calc:latest
+
+docker run -it --rm java-calc
+# Output:
+# Enter first number: 25
+# Enter operator (+, -, *, /): *
+# Enter second number: 4
+# Result: 100.0
+
+```
+
+### 3. HTML Weekly Timetable + Jenkins Pipeline Script
+
+**`timetable.html`**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weekly Timetable</title>
+  <style>
+    table { width: 80%; border-collapse: collapse; margin: 20px auto; font-family: Arial; }
+    th, td { border: 1px solid #333; padding: 10px; text-align: center; }
+    th { background-color: #2c3e50; color: white; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">CSE Weekly Class Timetable</h2>
+  <table>
+    <tr><th>Day</th><th>9:00 - 10:00</th><th>10:00 - 11:00</th><th>11:00 - 12:00</th></tr>
+    <tr><td>Monday</td><td>DevOps</td><td>Machine Learning</td><td>Cloud Computing</td></tr>
+    <tr><td>Tuesday</td><td>Compiler Design</td><td>DevOps Lab</td><td>DevOps Lab</td></tr>
+    <tr><td>Wednesday</td><td>Machine Learning</td><td>Computer Networks</td><td>Seminar</td></tr>
+  </table>
+</body>
+</html>
+
+```
+
+**`Jenkinsfile` (Declarative Pipeline):**
+
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/username/timetable-repo.git'
+            }
+        }
+        stage('Validate HTML') {
+            steps {
+                sh 'test -f timetable.html && echo "HTML File Verified"'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'docker build -t timetable-app:latest . && docker rm -f tt-web || true && docker run -d -p 8085:80 --name tt-web timetable-app:latest'
+            }
+        }
+    }
+}
+
+```
+
+---
+
+# SET-5: Kubernetes vs. Docker & Pizza Order App on Kubernetes
+
+### 1. What is Kubernetes & How is it Related to Docker?
+
+* **Kubernetes (K8s):** An open-source container orchestration platform that automates deployment, scaling, self-healing, service discovery, and load balancing of containerized applications across clusters of machines.
+* **Relationship with Docker:** Docker is a **container runtime/build tool** used to package an application and its dependencies into an isolated image and run single containers. Kubernetes is the **orchestrator** that manages hundreds of those containers across multiple nodes—handling restarts if a container crashes, scaling replicas up/down based on traffic, and routing network traffic. (Docker builds the shipping container; Kubernetes is the cargo ship and port crane system).
+
+### 2 & 3. Pizza Order Form + Docker + Kubernetes Deployment
+
+**`index.html`**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pizza Order</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Order Your Pizza</h2>
+    <form onsubmit="return validatePizza()">
+      <label>Customer Name:</label>
+      <input type="text" id="custName">
+      <label>Pizza Size:</label>
+      <select id="size">
+        <option value="Small">Small ($8)</option>
+        <option value="Medium">Medium ($12)</option>
+        <option value="Large">Large ($16)</option>
+      </select>
+      <label>Quantity:</label>
+      <input type="number" id="qty" value="1" min="1">
+      <button type="submit">Place Order</button>
+      <p id="orderMsg"></p>
+    </form>
+  </div>
+  <script src="validate.js"></script>
+</body>
+</html>
+
+```
+
+*(Use `styles.css` from SET-1.)*
+
+**`validate.js`**
+
+```javascript
+function validatePizza() {
+  const name = document.getElementById("custName").value.trim();
+  const size = document.getElementById("size").value;
+  const qty = parseInt(document.getElementById("qty").value);
+  const msg = document.getElementById("orderMsg");
+
+  if (!name || qty < 1) {
+    msg.style.color = "red";
+    msg.innerText = "Enter valid name and quantity.";
+    return false;
+  }
+  msg.style.color = "green";
+  msg.innerText = `Order confirmed: ${qty}x ${size} Pizza for ${name}!`;
+  return false;
+}
+
+```
+
+**`Dockerfile`**: Use **Template A (Universal Nginx Dockerfile)**.
+
+**Kubernetes Manifest (`pizza-k8s.yaml`):**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pizza-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pizza-web
+  template:
+    metadata:
+      labels:
+        app: pizza-web
+    spec:
+      containers:
+      - name: pizza-container
+        image: pizza-app:v1
+        imagePullPolicy: Never   # Uses local Docker image in Minikube/Docker Desktop
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-service
+spec:
+  type: NodePort
+  selector:
+    app: pizza-web
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30080
+
+```
+
+**Commands & Outputs:**
+
+```bash
+# 1. Build image (if using Minikube, run: eval $(minikube docker-env) first)
+docker build -t pizza-app:v1 .
+# Output: => => naming to docker.io/library/pizza-app:v1
+
+# 2. Apply Deployment & Service
+kubectl apply -f pizza-k8s.yaml
+# Output:
+# deployment.apps/pizza-deployment created
+# service/pizza-service created
+
+# 3. Check Pods & Services
+kubectl get pods,svc
+# Output:
+# NAME                                    READY   STATUS    RESTARTS   AGE
+# pod/pizza-deployment-7b9d8f6c4-abc12    1/1     Running   0          15s
+# NAME                    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+# service/pizza-service   NodePort   10.96.45.120   <none>        80:30080/TCP   15s
+
+# 4. Port-forward to access locally at http://localhost:8081
+kubectl port-forward service/pizza-service 8081:80
+# Output: Forwarding from 127.0.0.1:8081 -> 80
+
+```
+
+---
+
+# SET-6: Containerized Selenium Python Test, Jenkins Stages & K8s Architecture
+
+### 1. Selenium Standalone Chrome + Python Automated Test (`SeleniumDockerTest.py`)
+
+**Docker Commands & Dockerfile:**
+
+```bash
+# Pull official Selenium Standalone Chrome container
+docker pull selenium/standalone-chrome:latest
+
+# Start Selenium Grid/Chrome container on port 4444
+docker run -d -p 4444:4444 --shm-size="2g" --name selenium-chrome selenium/standalone-chrome:latest
+
+```
+
+**`Dockerfile` (for Python Test Runner):**
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /tests
+RUN pip install selenium
+COPY SeleniumDockerTest.py .
+CMD ["python", "SeleniumDockerTest.py"]
+
+```
+
+**`SeleniumDockerTest.py`**
+
+```python
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+import time
+
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+
+# Connect to Selenium Standalone Chrome container
+driver = webdriver.Remote(
+    command_executor="http://host.docker.internal:4444/wd/hub",
+    options=chrome_options
+)
+
+try:
+    driver.get("http://host.docker.internal:8080")  # Target containerized web app
+    print("Title verified:", driver.title)
+    
+    # Example form interaction test
+    driver.find_element(By.ID, "name").send_keys("Karan")
+    driver.find_element(By.TAG_NAME, "button").click()
+    time.sleep(1)
+    print("Test Passed Successfully!")
+finally:
+    driver.quit()
+
+```
+
+### 2. Jenkins Pipeline (`Build → Test → Deploy`)
+
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Stage 1: Build - Compiling source code and building Docker image...'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Stage 2: Test - Running automated Selenium and unit test suites...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Stage 3: Deploy - Deploying container to production cluster...'
+            }
+        }
+    }
+}
+
+```
+
+### 3. Key Components and Architecture of Kubernetes
+
+Kubernetes follows a **Master-Worker (Control Plane – Data Plane)** architecture:
+
+* **Control Plane (Master Node):**
+1. **kube-apiserver:** Front-end REST interface exposing the Kubernetes API; all CLI (`kubectl`) and internal requests pass through it.
+2. **etcd:** Distributed, consistent key-value store holding all cluster state and configuration data.
+3. **kube-scheduler:** Watches for newly created Pods with no assigned node and selects an optimal Worker Node based on CPU/RAM resources.
+4. **kube-controller-manager:** Runs background control loops (Node Controller, ReplicaSet Controller) to match actual state with desired state.
+
+
+* **Worker Nodes (Data Plane):**
+1. **kubelet:** Primary node agent ensuring containers described in PodSpecs are running and healthy.
+2. **kube-proxy:** Maintains network rules on nodes, enabling communication to Pods from inside or outside the cluster.
+3. **Container Runtime (containerd / CRI-O):** Software responsible for pulling images and running containers.
+4. **Pod:** Smallest deployable unit in Kubernetes wrapping one or more tightly coupled containers with shared storage and IP.
+
+
+
+---
+
+# SET-7: HTML Tables/Lists, Multi-Branch Secret Message & JS Calculator Test
+
+### 1. HTML Tables & Lists (`index.html`)
+
+```html
+<!DOCTYPE html>
+<html>
+<head><title>Tables and Lists</title></head>
+<body>
+  <h2>Tech Stack (Unordered & Ordered Lists)</h2>
+  <ul>
+    <li>Backend:
+      <ol>
+        <li>Python (FastAPI / Django)</li>
+        <li>Java</li>
+      </ol>
+    </li>
+    <li>DevOps: Docker, Kubernetes, Jenkins</li>
+  </ul>
+
+  <h2>Project Metrics (Table)</h2>
+  <table border="1" cellpadding="8">
+    <thead>
+      <tr><th>Project</th><th>Tech</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PROPgpt</td><td>Python / Pandas</td><td>Completed</td></tr>
+      <tr><td>Workboard</td><td>Django</td><td>In Progress</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
+
+```
+
+*(Push via `git init`, `git add .`, `git commit -m "Add lists and tables"`, `git remote add origin <url>`, `git push -u origin main`.)*
+
+### 2. Multi-Stage Git Branching Task (Secret Message Assembly)
+
+```bash
+# Initialize main branch
+git init -b main
+echo "Secret Message:" > secret.txt
+git add secret.txt && git commit -m "Init secret file"
+
+# Branch 1: Part 1
+git checkout -b part1
+echo "DEVOPS" >> secret.txt
+git commit -am "Add part 1"
+
+# Branch 2: Part 2 (branched from main)
+git checkout main
+git checkout -b part2
+echo "AUTOMATES" >> secret.txt
+git commit -am "Add part 2"
+
+# Branch 3: Part 3 (branched from main)
+git checkout main
+git checkout -b part3
+echo "EVERYTHING" >> secret.txt
+git commit -am "Add part 3"
+
+# Merge all parts into main (resolving conflict by keeping all lines)
+git checkout main
+git merge part1 -m "Merge part 1"
+git merge part2 -m "Merge part 2" # If conflict occurs, keep both lines, then git add secret.txt && git commit
+git merge part3 -m "Merge part 3"
+
+cat secret.txt
+# Output:
+# Secret Message:
+# DEVOPS
+# AUTOMATES
+# EVERYTHING
+
+```
+
+### 3. JS Calculator & Selenium WebDriver Test
+
+*(See **SET-8 Question 2** immediately below for the complete HTML/JS Calculator + Java Selenium WebDriver test code—they are identical requirements).*
+
+---
+
+# SET-8: Selenium Java Setup, JS Calculator Testing & Jenkins Cron Job
+
+### 1. Setting up a Java Project for Selenium & Advantages
+
+**Setup Steps (Maven in VS Code / Eclipse / IntelliJ):**
+
+1. Create a new **Maven Project** (`File → New → Maven Project`).
+2. Open `pom.xml` and add the `selenium-java` dependency inside `<dependencies>`:
+```xml
+<dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>4.25.0</version>
+</dependency>
+
+```
+
+
+3. Save `pom.xml` so Maven downloads the JARs (Selenium Manager automatically resolves `chromedriver` in Selenium 4.6+).
+4. Create a Java class under `src/test/java` and instantiate `WebDriver driver = new ChromeDriver();`.
+
+**Advantages of Selenium:**
+
+* Supports **headless execution** for fast CI/CD pipeline runs.
+* **Selenium Manager** automatically downloads and configures browser drivers without manual path setup.
+* Rich locator strategies (`By.id`, `By.cssSelector`, `By.xpath`) for interacting with dynamic DOM elements.
+
+### 2. JS Calculator (`javscriptCalculator.html`) & Selenium Test (`FirstSeleniumPro2.java`)
+
+**`javscriptCalculator.html`**
+
+```html
+<!DOCTYPE html>
+<html>
+<head><title>JS Calculator</title></head>
+<body>
+  <h2>Simple Calculator</h2>
+  <input type="number" id="num1" placeholder="Number 1">
+  <input type="number" id="num2" placeholder="Number 2">
+  <button id="addBtn" onclick="calculate('+')">Add</button>
+  <button id="subBtn" onclick="calculate('-')">Subtract</button>
+  <p>Result: <span id="result">0</span></p>
+
+  <script>
+    function calculate(op) {
+      const a = parseFloat(document.getElementById("num1").value);
+      const b = parseFloat(document.getElementById("num2").value);
+      const res = (op === '+') ? (a + b) : (a - b);
+      document.getElementById("result").innerText = res;
+    }
+  </script>
+</body>
+</html>
+
+```
+
+**`FirstSeleniumPro2.java`**
+
+```java
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class FirstSeleniumPro2 {
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        try {
+            // Replace with actual local file path or localhost URL
+            driver.get("file:///C:/projects/javscriptCalculator.html");
+
+            driver.findElement(By.id("num1")).sendKeys("15");
+            driver.findElement(By.id("num2")).sendKeys("25");
+            driver.findElement(By.id("addBtn")).click();
+
+            String output = driver.findElement(By.id("result")).getText();
+            System.out.println("Calculator Output: " + output);
+
+            if ("40".equals(output)) {
+                System.out.println("TEST PASSED: 15 + 25 = 40");
+            } else {
+                System.out.println("TEST FAILED");
+            }
+        } finally {
+            driver.quit();
+        }
+    }
+}
+
+```
+
+### 3. Jenkins Job Running Every 2 Minutes Printing System Date/Time
+
+1. **New Item:** Create a Freestyle project named `Date-Printer-Cron`.
+2. **Build Triggers:** Check **Build periodically** and enter the cron syntax for every 2 minutes:
+```text
+H/2 * * * *
+
+```
+
+
+*(Or `*/2 * * * *`)*
+3. **Build Step → Execute Shell (Linux/Mac) or Execute Windows Batch Command:**
+* Linux/Mac: `date`
+* Windows: `echo %DATE% %TIME%`
+
+
+4. **Save:** Jenkins triggers automatically every 2 minutes and logs the timestamp in **Console Output**.
+
+---
+
+# SET-9: Resume Containerization & Comparison of Deployment Systems
+
+### 1 & 2. HTML Resume + Dockerfile
+
+Use the HTML Resume (`index.html` + `styles.css`) from **SET-2 Question 3** and package it using **Template A (Universal Nginx Dockerfile)**.
+
+### 3. Comparison of Deployment Systems with Configuration Files
+
+| Feature | Traditional / VM Deployment | Docker (Containerized) | Kubernetes (Orchestrated) |
+| --- | --- | --- | --- |
+| **Isolation Level** | Full Guest OS per VM (Heavy, GBs) | Shared Host Kernel (Lightweight, MBs) | Multi-node Pod clusters |
+| **Startup Time** | Minutes | Milliseconds to seconds | Seconds (with auto-healing) |
+| **Scaling** | Manual VM provisioning | Manual `docker run` / Compose scale | Automated Horizontal Pod Autoscaler |
+| **Config File** | `Vagrantfile` / Shell Scripts | `Dockerfile` / `docker-compose.yml` | `deployment.yaml` & `service.yaml` |
+
+**Configuration File Snippets:**
+
+1. **Docker Compose (`docker-compose.yml`):**
+```yaml
+version: "3.8"
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+
+```
+
+
+2. **Kubernetes Deployment (`deployment.yaml`):**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resume-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: resume
+  template:
+    metadata:
+      labels:
+        app: resume
+    spec:
+      containers:
+      - name: resume
+        image: resume-app:v1
+        ports:
+        - containerPort: 80
+
+```
+
+
+
+---
+
+# SET-10: HTML Image Gallery on Docker & Kubernetes
+
+### 1. HTML Image Gallery (`index.html`)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Photo Gallery</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; }
+    .gallery { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 20px; }
+    figure { background: white; padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 220px; }
+    img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
+    figcaption { margin-top: 8px; font-weight: bold; color: #333; }
+  </style>
+</head>
+<body>
+  <h2>DevOps Architecture Gallery</h2>
+  <div class="gallery">
+    <figure>
+      <img src="https://via.placeholder.com/220x150?text=Git+SCM" alt="Git">
+      <figcaption>1. Version Control with Git</figcaption>
+    </figure>
+    <figure>
+      <img src="https://via.placeholder.com/220x150?text=Jenkins+CI" alt="Jenkins">
+      <figcaption>2. CI/CD Pipelines</figcaption>
+    </figure>
+    <figure>
+      <img src="https://via.placeholder.com/220x150?text=Docker" alt="Docker">
+      <figcaption>3. Containerization</figcaption>
+    </figure>
+    <figure>
+      <img src="https://via.placeholder.com/220x150?text=Kubernetes" alt="Kubernetes">
+      <figcaption>4. K8s Orchestration</figcaption>
+    </figure>
+  </div>
+</body>
+</html>
+
+```
+
+### 2. Build & Run Gallery Docker Image
+
+Use **Template A (Universal Nginx Dockerfile)**:
+
+```bash
+docker build -t gallery-app:v1 .
+docker run -d -p 8090:80 --name gallery-container gallery-app:v1
+# Access at http://localhost:8090
+
+```
+
+### 3. Kubernetes Deployment + Service YAML (`gallery-k8s.yaml`)
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gallery-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gallery
+  template:
+    metadata:
+      labels:
+        app: gallery
+    spec:
+      containers:
+      - name: gallery-web
+        image: gallery-app:v1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gallery-service
+spec:
+  type: NodePort
+  selector:
+    app: gallery
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30090
+
+```
+
+Apply with `kubectl apply -f gallery-k8s.yaml` and verify via `kubectl get all`.
